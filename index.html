@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prime IPTV Streaming — Le monde entier, une seule télécommande</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#090C14;
+    --panel:#121826;
+    --panel2:#161D2E;
+    --gold:#E7A94C;
+    --cyan:#35D0C0;
+    --text:#F2F0EA;
+    --muted:#8B93A7;
+    --line:#232B3D;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.5;
+  }
+  h1,h2,h3{
+    font-family:'Archivo', sans-serif;
+    font-weight:800;
+    letter-spacing:-0.01em;
+  }
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 24px;}
+
+  .ticker{
+    background:var(--panel2);
+    border-bottom:1px solid var(--line);
+    padding:10px 0;
+    overflow:hidden;
+    white-space:nowrap;
+  }
+  .ticker-inner{
+    display:inline-flex;
+    align-items:center;
+    gap:36px;
+    animation:scroll 22s linear infinite;
+    font-size:13px;
+    color:var(--muted);
+    font-weight:500;
+  }
+  .ticker-inner span{display:inline-flex;align-items:center;gap:8px;}
+  .dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--cyan);
+    box-shadow:0 0 0 0 rgba(53,208,192,.6);
+    animation:pulse 1.8s infinite;
+    flex-shrink:0;
+  }
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(53,208,192,.55);}
+    70%{box-shadow:0 0 0 8px rgba(53,208,192,0);}
+    100%{box-shadow:0 0 0 0 rgba(53,208,192,0);}
+  }
+  @keyframes scroll{
+    0%{transform:translateX(0);}
+    100%{transform:translateX(-50%);}
+  }
+
+  header{padding:20px 0;}
+  .brand{
+    font-family:'Archivo', sans-serif;
+    font-weight:800;
+    font-size:19px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .brand .dot{width:9px;height:9px;}
+
+  .hero{padding:56px 0 40px;}
+  .hero h1{
+    font-size:38px;
+    line-height:1.12;
+    max-width:640px;
+  }
+  .hero h1 .accent{color:var(--gold);}
+  .hero p{
+    color:var(--muted);
+    font-size:16px;
+    max-width:520px;
+    margin-top:18px;
+  }
+  .hero-cta{
+    display:inline-block;
+    margin-top:26px;
+    background:var(--gold);
+    color:#1A1305;
+    font-weight:600;
+    padding:13px 26px;
+    border-radius:6px;
+    font-size:15px;
+  }
+
+  .regions{
+    padding:36px 0 8px;
+    border-top:1px solid var(--line);
+  }
+  .regions h2{font-size:22px;margin-bottom:4px;}
+  .regions .sub{color:var(--muted);font-size:14px;margin-bottom:20px;}
+  .tabs{
+    display:flex;
+    gap:8px;
+    border-bottom:1px solid var(--line);
+    margin-bottom:26px;
+    flex-wrap:wrap;
+  }
+  .tab{
+    padding:10px 18px;
+    font-size:14px;
+    font-weight:600;
+    color:var(--muted);
+    border-bottom:2px solid transparent;
+    cursor:pointer;
+    background:none;
+    border-top:none;border-left:none;border-right:none;
+    font-family:'IBM Plex Sans',sans-serif;
+  }
+  .tab.active{
+    color:var(--text);
+    border-bottom-color:var(--gold);
+  }
+  .plans{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(140px,1fr));
+    gap:14px;
+    margin-bottom:28px;
+  }
+  .plan{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:20px 16px;
+  }
+  .plan .duree{
+    color:var(--muted);
+    font-size:13px;
+    font-weight:500;
+  }
+  .plan .prix{
+    font-family:'Archivo',sans-serif;
+    font-weight:800;
+    font-size:26px;
+    margin-top:6px;
+    color:var(--text);
+  }
+  .plan.best{border-color:var(--gold);}
+  .plan.best .duree{color:var(--gold);}
+  .whatsapp-cta{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    background:var(--panel2);
+    border:1px solid var(--line);
+    padding:13px 20px;
+    border-radius:6px;
+    font-size:14px;
+    font-weight:600;
+  }
+  .whatsapp-cta .dot{background:#35D0C0;}
+
+  .features{
+    padding:52px 0;
+    border-top:1px solid var(--line);
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:24px;
+  }
+  .feature .num{
+    font-family:'Archivo',sans-serif;
+    font-weight:800;
+    font-size:24px;
+    color:var(--gold);
+  }
+  .feature .label{
+    color:var(--muted);
+    font-size:13px;
+    margin-top:4px;
+  }
+
+  .steps{padding:20px 0 56px;border-top:1px solid var(--line);}
+  .steps h2{font-size:22px;margin-bottom:24px;}
+  .step-list{display:flex;flex-direction:column;gap:0;}
+  .step{
+    display:flex;
+    gap:18px;
+    padding:18px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .step:last-child{border-bottom:none;}
+  .step-n{
+    font-family:'Archivo',sans-serif;
+    font-weight:800;
+    color:var(--muted);
+    font-size:15px;
+    flex-shrink:0;
+    width:24px;
+  }
+  .step-txt h3{font-size:15px;font-weight:600;font-family:'IBM Plex Sans';margin-bottom:3px;}
+  .step-txt p{color:var(--muted);font-size:13.5px;}
+
+  footer{
+    border-top:1px solid var(--line);
+    padding:28px 0;
+    color:var(--muted);
+    font-size:13px;
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+
+  @media(max-width:600px){
+    .hero h1{font-size:29px;}
+    footer{flex-direction:column;}
+  }
+</style>
+</head>
+<body>
+
+<div class="ticker">
+  <div class="ticker-inner">
+    <span><span class="dot"></span>EN DIRECT — +8000 chaînes</span>
+    <span>4K &amp; HD sur tous vos écrans</span>
+    <span>Support disponible 24/7</span>
+    <span>Mises à jour continues</span>
+    <span><span class="dot"></span>EN DIRECT — +8000 chaînes</span>
+    <span>4K &amp; HD sur tous vos écrans</span>
+    <span>Support disponible 24/7</span>
+    <span>Mises à jour continues</span>
+  </div>
+</div>
+
+<header>
+  <div class="wrap">
+    <div class="brand"><span class="dot"></span>PRIME IPTV STREAMING</div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <h1>Le monde entier,<br>sur <span class="accent">une seule télécommande</span>.</h1>
+    <p>Chaînes internationales, sport en direct, films et séries en illimité — accessible en quelques minutes, où que vous soyez.</p>
+    <a href="#tarifs" class="hero-cta">Voir les tarifs</a>
+  </div>
+</section>
+
+<section class="regions" id="tarifs">
+  <div class="wrap">
+    <h2>Choisissez votre formule</h2>
+    <p class="sub" id="region-hint">Région détectée automatiquement — vous pouvez la changer ci-dessous.</p>
+
+    <div class="tabs" id="tabs"></div>
+    <div class="plans" id="plans"></div>
+    <a href="#" class="whatsapp-cta" id="whatsapp-btn" target="_blank">
+      <span class="dot"></span> Commander sur WhatsApp
+    </a>
+  </div>
+</section>
+
+<section class="features">
+  <div class="wrap" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:24px;">
+    <div class="feature"><div class="num">8000+</div><div class="label">Chaînes en direct</div></div>
+    <div class="feature"><div class="num">30 000+</div><div class="label">Films et séries à la demande</div></div>
+    <div class="feature"><div class="num">4K/HD</div><div class="label">Qualité d'image</div></div>
+    <div class="feature"><div class="num">24/7</div><div class="label">Support client</div></div>
+  </div>
+</section>
+
+<section class="steps">
+  <div class="wrap">
+    <h2>Comment ça marche</h2>
+    <div class="step-list">
+      <div class="step">
+        <div class="step-n">1</div>
+        <div class="step-txt">
+          <h3>Choisissez votre formule</h3>
+          <p>Sélectionnez la durée qui vous convient selon votre région.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-n">2</div>
+        <div class="step-txt">
+          <h3>Contactez-nous sur WhatsApp</h3>
+          <p>Confirmez votre commande et effectuez le paiement.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-n">3</div>
+        <div class="step-txt">
+          <h3>Recevez vos identifiants</h3>
+          <p>Vos accès sont envoyés rapidement, prêts à être utilisés sur votre appareil.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap" style="display:flex;justify-content:space-between;width:100%;flex-wrap:wrap;gap:10px;">
+    <span>&copy; 2026 Prime IPTV Streaming</span>
+    <span>Service disponible dans le monde entier</span>
+  </div>
+</footer>
+
+<script>
+  const DATA = {
+    senegal: {
+      label: "Sénégal",
+      devise: "FCFA",
+      whatsapp: "221770958325",
+      plans: [
+        {duree:"1 mois", prix:"4 000"},
+        {duree:"3 mois", prix:"10 000"},
+        {duree:"6 mois", prix:"16 000"},
+        {duree:"1 an", prix:"28 000", best:true}
+      ]
+    },
+    maroc: {
+      label: "Maroc",
+      devise: "DH",
+      whatsapp: "212711691415",
+      plans: [
+        {duree:"1 mois", prix:"80"},
+        {duree:"3 mois", prix:"150"},
+        {duree:"6 mois", prix:"200"},
+        {duree:"1 an", prix:"300", best:true}
+      ]
+    },
+    intl: {
+      label: "International",
+      devise: "$",
+      whatsapp: "221770958325",
+      plans: [
+        {duree:"1 mois", prix:"10"},
+        {duree:"3 mois", prix:"25"},
+        {duree:"6 mois", prix:"40"},
+        {duree:"1 an", prix:"65", best:true}
+      ]
+    }
+  };
+
+  let currentRegion = "intl";
+
+  function renderTabs(){
+    const tabsEl = document.getElementById("tabs");
+    tabsEl.innerHTML = "";
+    Object.keys(DATA).forEach(key=>{
+      const btn = document.createElement("button");
+      btn.className = "tab" + (key === currentRegion ? " active" : "");
+      btn.textContent = DATA[key].label;
+      btn.onclick = () => { currentRegion = key; renderTabs(); renderPlans(); };
+      tabsEl.appendChild(btn);
+    });
+  }
+
+  function renderPlans(){
+    const region = DATA[currentRegion];
+    const plansEl = document.getElementById("plans");
+    plansEl.innerHTML = "";
+    region.plans.forEach(p=>{
+      const div = document.createElement("div");
+      div.className = "plan" + (p.best ? " best" : "");
+      div.innerHTML = `<div class="duree">${p.duree}</div><div class="prix">${p.prix} ${region.devise}</div>`;
+      plansEl.appendChild(div);
+    });
+    const wa = document.getElementById("whatsapp-btn");
+    wa.href = "https://wa.me/" + region.whatsapp + "?text=" + encodeURIComponent("Bonjour, je suis intéressé par un abonnement Prime IPTV Streaming (" + region.label + ")");
+  }
+
+  function detectRegion(){
+    fetch("https://ipapi.co/json/")
+      .then(r => r.json())
+      .then(data => {
+        const country = data.country_code;
+        if (country === "SN") currentRegion = "senegal";
+        else if (country === "MA") currentRegion = "maroc";
+        else currentRegion = "intl";
+        renderTabs();
+        renderPlans();
+      })
+      .catch(() => {
+        currentRegion = "intl";
+        renderTabs();
+        renderPlans();
+      });
+  }
+
+  renderTabs();
+  renderPlans();
+  detectRegion();
+</script>
+
+</body>
+</html>
