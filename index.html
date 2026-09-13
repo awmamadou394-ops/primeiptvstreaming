@@ -45,9 +45,6 @@
   .regions{padding:36px 0 8px;border-top:1px solid var(--line);}
   .regions h2{font-size:22px;margin-bottom:4px;}
   .regions .sub{color:var(--muted);font-size:14px;margin-bottom:20px;}
-  .tabs{display:flex;gap:8px;border-bottom:1px solid var(--line);margin-bottom:26px;flex-wrap:wrap;}
-  .tab{padding:10px 18px;font-size:14px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer;background:none;border-top:none;border-left:none;border-right:none;font-family:'IBM Plex Sans',sans-serif;}
-  .tab.active{color:var(--text);border-bottom-color:var(--gold);}
   .plans{display:grid;grid-template-columns:repeat(auto-fit, minmax(150px,1fr));gap:14px;margin-bottom:22px;}
   .plan{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:20px 16px;display:flex;flex-direction:column;gap:12px;}
   .plan .duree{color:var(--muted);font-size:13px;font-weight:500;}
@@ -131,9 +128,8 @@
 <section class="regions" id="tarifs">
   <div class="wrap">
     <h2>Choisissez votre formule</h2>
-    <p class="sub">Région détectée automatiquement — vous pouvez la changer ci-dessous. Paiement sécurisé, activation automatique.</p>
+    <p class="sub" id="region-label">Détection de votre région...</p>
 
-    <div class="tabs" id="tabs"></div>
     <div class="plans" id="plans"></div>
     <a href="#" class="whatsapp-cta" id="whatsapp-btn" target="_blank"><span class="dot"></span> Une question ? Contactez-nous sur WhatsApp</a>
   </div>
@@ -212,19 +208,8 @@
   let currentRegion = "intl";
   let planChoisi = null;
 
-  function renderTabs(){
-    const tabsEl = document.getElementById("tabs");
-    tabsEl.innerHTML = "";
-    Object.keys(DATA).forEach(key=>{
-      const btn = document.createElement("button");
-      btn.className = "tab" + (key === currentRegion ? " active" : "");
-      btn.textContent = DATA[key].label;
-      btn.onclick = () => { currentRegion = key; renderTabs(); renderPlans(); };
-      tabsEl.appendChild(btn);
-    });
-  }
-
   function renderPlans(){
+    document.getElementById("region-label").textContent = "Région détectée : " + DATA[currentRegion].label;
     const region = DATA[currentRegion];
     const plansEl = document.getElementById("plans");
     plansEl.innerHTML = "";
@@ -289,7 +274,7 @@
 
     sb.from("abonnements_iptv").insert([donnees]).then(function(reponse){
       if (reponse.error) {
-        erreurEl.textContent = "Erreur reelle : " + reponse.error.message + " (code: " + (reponse.error.code || "?") + ")";
+        erreurEl.textContent = "Erreur : la commande n'a pas pu etre enregistree. Reessayez.";
         erreurEl.style.display = "block";
         btn.disabled = false;
         btn.textContent = "Payer maintenant";
@@ -342,13 +327,11 @@
         if (country === "SN") currentRegion = "senegal";
         else if (country === "MA") currentRegion = "maroc";
         else currentRegion = "intl";
-        renderTabs(); renderPlans();
+        renderPlans();
       })
-      .catch(() => { currentRegion = "intl"; renderTabs(); renderPlans(); });
+      .catch(() => { currentRegion = "intl"; renderPlans(); });
   }
 
-  renderTabs();
-  renderPlans();
   detectRegion();
 </script>
 
