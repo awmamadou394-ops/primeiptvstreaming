@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Espace admin — Prime IPTV Streaming</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#090C14; --panel:#121826; --panel2:#161D2E; --gold:#E7A94C;
+    --cyan:#35D0C0; --text:#F2F0EA; --muted:#8B93A7; --line:#232B3D; --red:#E76B5C;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans', sans-serif;padding:20px 16px 60px;}
+  h1{font-family:'Archivo',sans-serif;font-weight:800;font-size:20px;}
+  .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+  .logout{background:none;border:1px solid var(--line);color:var(--muted);padding:8px 14px;border-radius:6px;font-size:13px;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;}
+
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:24px;}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px;}
+  .stat .num{font-family:'Archivo',sans-serif;font-weight:800;font-size:20px;color:var(--gold);}
+  .stat .lbl{font-size:12px;color:var(--muted);margin-top:2px;}
+
+  .filtre{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+  .filtre button{background:var(--panel2);border:1px solid var(--line);color:var(--muted);padding:8px 14px;border-radius:6px;font-size:13px;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;}
+  .filtre button.active{color:var(--text);border-color:var(--gold);}
+
+  .commande{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px;margin-bottom:12px;}
+  .commande .ligne1{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .commande .nom{font-weight:600;font-size:15px;}
+  .commande .meta{color:var(--muted);font-size:12.5px;margin-top:2px;}
+  .badge{font-size:11px;padding:3px 8px;border-radius:20px;font-weight:600;white-space:nowrap;}
+  .badge.paye{background:rgba(53,208,192,0.15);color:var(--cyan);}
+  .badge.nonpaye{background:rgba(231,107,92,0.15);color:var(--red);}
+  .badge.envoye{background:rgba(231,169,76,0.15);color:var(--gold);}
+
+  .detail{margin-top:10px;font-size:13px;color:var(--muted);line-height:1.7;}
+  .detail b{color:var(--text);}
+
+  .envoi-form{margin-top:12px;border-top:1px solid var(--line);padding-top:12px;display:none;}
+  .envoi-form.open{display:block;}
+  .envoi-form input{
+    width:100%;background:var(--bg);border:1px solid var(--line);color:var(--text);
+    padding:9px 10px;border-radius:6px;font-size:13.5px;margin-bottom:8px;font-family:'IBM Plex Sans',sans-serif;
+  }
+  .envoi-form button{
+    background:var(--gold);color:#1A1305;border:none;padding:10px;border-radius:6px;
+    font-weight:600;font-size:13.5px;cursor:pointer;width:100%;font-family:'IBM Plex Sans',sans-serif;
+  }
+  .toggle-envoi{
+    margin-top:10px;background:var(--panel2);border:1px solid var(--line);color:var(--text);
+    padding:9px 12px;border-radius:6px;font-size:13px;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;
+  }
+
+  .chargement, .vide{color:var(--muted);font-size:14px;text-align:center;padding:30px 0;}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <h1>Prime IPTV — Admin</h1>
+  <button class="logout" id="logout">Déconnexion</button>
+</div>
+
+<div class="stats" id="stats"></div>
+
+<div class="filtre" id="filtre">
+  <button data-f="tous" class="active">Tous</button>
+  <button data-f="attente">En attente d'envoi</button>
+  <button data-f="nonpaye">Non payés</button>
+</div>
+
+<div id="liste"><div class="chargement">Chargement...</div></div>
+
+<script>
+  const user = sessionStorage.getItem("prime_admin_user");
+  const pass = sessionStorage.getItem("prime_admin_pass");
+
+  if (!user || !pass) {
+    window.location.href = "admin-connexion.html";
+  }
+
+  document.getElementById("logout").onclick = function(){
+    sessionStorage.removeItem("prime_admin_user");
+    sessionStorage.removeItem("prime_admin_pass");
+    window.location.href = "admin-connexion.html";
+  };
+
+  let toutesLesLignes = [];
+  let filtreActif = "tous";
+
+  function chargerDonnees(){
+    fetch("https://vnceunqygoiwglnwpgcr.supabase.co/functions/v1/admin-iptv", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "list", username: user, password: pass })
+    }).then(r => r.json()).then(function(resultat){
+      if (!resultat.success) {
+        if (resultat.message === "Identifiants incorrects") {
+          window.location.href = "admin-connexion.html";
+          return;
+        }
+        document.getElementById("liste").innerHTML = "<div class='vide'>Erreur: " + (resultat.message || "inconnue") + "</div>";
+        return;
+      }
+      toutesLesLignes = resultat.lignes;
+      afficherStats(resultat.stats);
+      afficherListe();
+    }).catch(function(){
+      document.getElementById("liste").innerHTML = "<div class='vide'>Erreur de connexion.</div>";
+    });
+  }
+
+  function afficherStats(stats){
+    const statsEl = document.getElementById("stats");
+    let revenuHtml = "";
+    for (const devise in stats.revenu_par_devise) {
+      revenuHtml += `<div class="stat"><div class="num">${stats.revenu_par_devise[devise].toLocaleString("fr-FR")}</div><div class="lbl">Revenu ${devise}</div></div>`;
+    }
+    statsEl.innerHTML = `
+      <div class="stat"><div class="num">${stats.total}</div><div class="lbl">Commandes totales</div></div>
+      <div class="stat"><div class="num">${stats.payes}</div><div class="lbl">Payées</div></div>
+      <div class="stat"><div class="num">${stats.en_attente_envoi}</div><div class="lbl">En attente d'envoi</div></div>
+      ${revenuHtml}
+    `;
+  }
+
+  function afficherListe(){
+    const listeEl = document.getElementById("liste");
+    let lignes = toutesLesLignes;
+
+    if (filtreActif === "attente") {
+      lignes = lignes.filter(l => l.statut_paiement === "paye" && !l.identifiants_envoyes);
+    } else if (filtreActif === "nonpaye") {
+      lignes = lignes.filter(l => l.statut_paiement !== "paye");
+    }
+
+    if (lignes.length === 0) {
+      listeEl.innerHTML = "<div class='vide'>Aucune commande a afficher.</div>";
+      return;
+    }
+
+    listeEl.innerHTML = "";
+    lignes.forEach(function(l){
+      const div = document.createElement("div");
+      div.className = "commande";
+
+      const badgePaiement = l.statut_paiement === "paye"
+        ? '<span class="badge paye">Paye</span>'
+        : '<span class="badge nonpaye">Non paye</span>';
+      const badgeEnvoi = l.identifiants_envoyes ? '<span class="badge envoye">Identifiants envoyes</span>' : "";
+
+      const date = l.date_commande ? new Date(l.date_commande).toLocaleString("fr-FR") : "";
+
+      div.innerHTML = `
+        <div class="ligne1">
+          <div>
+            <div class="nom">${l.client_nom || "?"}</div>
+            <div class="meta">${date}</div>
+          </div>
+          <div style="text-align:right;">${badgePaiement}<br>${badgeEnvoi}</div>
+        </div>
+        <div class="detail">
+          <b>${l.formule || "?"}</b> — ${l.prix || "?"} ${l.devise || ""} — ${l.region || ""}<br>
+          Tel: ${l.client_telephone || "?"}<br>
+          Email: ${l.client_email || "?"}
+        </div>
+        ${l.statut_paiement === "paye" && !l.identifiants_envoyes ? `
+          <button class="toggle-envoi">Renseigner et envoyer les identifiants</button>
+          <div class="envoi-form">
+            <input type="text" placeholder="Identifiant IPTV" class="champ-login">
+            <input type="text" placeholder="Mot de passe IPTV" class="champ-pass">
+            <button class="valider-envoi">Marquer comme envoye</button>
+          </div>
+        ` : ""}
+      `;
+
+      if (l.statut_paiement === "paye" && !l.identifiants_envoyes) {
+        const toggleBtn = div.querySelector(".toggle-envoi");
+        const form = div.querySelector(".envoi-form");
+        toggleBtn.onclick = () => form.classList.toggle("open");
+
+        div.querySelector(".valider-envoi").onclick = function(){
+          const login = div.querySelector(".champ-login").value.trim();
+          const mdp = div.querySelector(".champ-pass").value.trim();
+          if (!login || !mdp) { alert("Remplis les deux champs."); return; }
+
+          fetch("https://vnceunqygoiwglnwpgcr.supabase.co/functions/v1/admin-iptv", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "marquer_envoye", username: user, password: pass,
+              id: l.id, identifiant_iptv: login, mot_de_passe_iptv: mdp
+            })
+          }).then(r => r.json()).then(function(res){
+            if (res.success) { chargerDonnees(); }
+            else { alert("Erreur: " + (res.message || "inconnue")); }
+          });
+        };
+      }
+
+      listeEl.appendChild(div);
+    });
+  }
+
+  document.querySelectorAll("#filtre button").forEach(function(btn){
+    btn.onclick = function(){
+      document.querySelectorAll("#filtre button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      filtreActif = btn.dataset.f;
+      afficherListe();
+    };
+  });
+
+  chargerDonnees();
+</script>
+
+</body>
+</html>
