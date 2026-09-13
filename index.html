@@ -274,7 +274,7 @@
 
     sb.from("abonnements_iptv").insert([donnees]).then(function(reponse){
       if (reponse.error) {
-        erreurEl.textContent = "Erreur : la commande n'a pas pu etre enregistree. Reessayez.";
+        erreurEl.textContent = "Erreur reelle : " + reponse.error.message + " (code: " + (reponse.error.code || "?") + ")";
         erreurEl.style.display = "block";
         btn.disabled = false;
         btn.textContent = "Payer maintenant";
@@ -328,8 +328,13 @@
         else if (country === "MA") currentRegion = "maroc";
         else currentRegion = "intl";
         renderPlans();
+        document.getElementById("region-label").textContent += " (detecte: " + JSON.stringify(data.country_code || data.error || data.reason || "?") + ")";
       })
-      .catch(() => { currentRegion = "intl"; renderPlans(); });
+      .catch(function(err){
+        currentRegion = "intl";
+        renderPlans();
+        document.getElementById("region-label").textContent += " (erreur detection: " + err.message + ")";
+      });
   }
 
   detectRegion();
