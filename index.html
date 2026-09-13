@@ -6,6 +6,7 @@
 <title>Prime IPTV Streaming — Le monde entier, une seule télécommande</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
     --bg:#090C14;
@@ -19,206 +20,82 @@
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   html{scroll-behavior:smooth;}
-  body{
-    background:var(--bg);
-    color:var(--text);
-    font-family:'IBM Plex Sans', sans-serif;
-    line-height:1.5;
-  }
-  h1,h2,h3{
-    font-family:'Archivo', sans-serif;
-    font-weight:800;
-    letter-spacing:-0.01em;
-  }
+  body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans', sans-serif;line-height:1.5;}
+  h1,h2,h3{font-family:'Archivo', sans-serif;font-weight:800;letter-spacing:-0.01em;}
   a{color:inherit;text-decoration:none;}
   .wrap{max-width:1100px;margin:0 auto;padding:0 24px;}
 
-  .ticker{
-    background:var(--panel2);
-    border-bottom:1px solid var(--line);
-    padding:10px 0;
-    overflow:hidden;
-    white-space:nowrap;
-  }
-  .ticker-inner{
-    display:inline-flex;
-    align-items:center;
-    gap:36px;
-    animation:scroll 22s linear infinite;
-    font-size:13px;
-    color:var(--muted);
-    font-weight:500;
-  }
+  .ticker{background:var(--panel2);border-bottom:1px solid var(--line);padding:10px 0;overflow:hidden;white-space:nowrap;}
+  .ticker-inner{display:inline-flex;align-items:center;gap:36px;animation:scroll 22s linear infinite;font-size:13px;color:var(--muted);font-weight:500;}
   .ticker-inner span{display:inline-flex;align-items:center;gap:8px;}
-  .dot{
-    width:8px;height:8px;border-radius:50%;
-    background:var(--cyan);
-    box-shadow:0 0 0 0 rgba(53,208,192,.6);
-    animation:pulse 1.8s infinite;
-    flex-shrink:0;
-  }
-  @keyframes pulse{
-    0%{box-shadow:0 0 0 0 rgba(53,208,192,.55);}
-    70%{box-shadow:0 0 0 8px rgba(53,208,192,0);}
-    100%{box-shadow:0 0 0 0 rgba(53,208,192,0);}
-  }
-  @keyframes scroll{
-    0%{transform:translateX(0);}
-    100%{transform:translateX(-50%);}
-  }
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 0 rgba(53,208,192,.6);animation:pulse 1.8s infinite;flex-shrink:0;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(53,208,192,.55);}70%{box-shadow:0 0 0 8px rgba(53,208,192,0);}100%{box-shadow:0 0 0 0 rgba(53,208,192,0);}}
+  @keyframes scroll{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
 
   header{padding:20px 0;}
-  .brand{
-    font-family:'Archivo', sans-serif;
-    font-weight:800;
-    font-size:19px;
-    display:flex;
-    align-items:center;
-    gap:10px;
-  }
+  .brand{font-family:'Archivo', sans-serif;font-weight:800;font-size:19px;display:flex;align-items:center;gap:10px;}
   .brand .dot{width:9px;height:9px;}
 
   .hero{padding:56px 0 40px;}
-  .hero h1{
-    font-size:38px;
-    line-height:1.12;
-    max-width:640px;
-  }
+  .hero h1{font-size:38px;line-height:1.12;max-width:640px;}
   .hero h1 .accent{color:var(--gold);}
-  .hero p{
-    color:var(--muted);
-    font-size:16px;
-    max-width:520px;
-    margin-top:18px;
-  }
-  .hero-cta{
-    display:inline-block;
-    margin-top:26px;
-    background:var(--gold);
-    color:#1A1305;
-    font-weight:600;
-    padding:13px 26px;
-    border-radius:6px;
-    font-size:15px;
-  }
+  .hero p{color:var(--muted);font-size:16px;max-width:520px;margin-top:18px;}
+  .hero-cta{display:inline-block;margin-top:26px;background:var(--gold);color:#1A1305;font-weight:600;padding:13px 26px;border-radius:6px;font-size:15px;border:none;cursor:pointer;}
 
-  .regions{
-    padding:36px 0 8px;
-    border-top:1px solid var(--line);
-  }
+  .regions{padding:36px 0 8px;border-top:1px solid var(--line);}
   .regions h2{font-size:22px;margin-bottom:4px;}
   .regions .sub{color:var(--muted);font-size:14px;margin-bottom:20px;}
-  .tabs{
-    display:flex;
-    gap:8px;
-    border-bottom:1px solid var(--line);
-    margin-bottom:26px;
-    flex-wrap:wrap;
-  }
-  .tab{
-    padding:10px 18px;
-    font-size:14px;
-    font-weight:600;
-    color:var(--muted);
-    border-bottom:2px solid transparent;
-    cursor:pointer;
-    background:none;
-    border-top:none;border-left:none;border-right:none;
-    font-family:'IBM Plex Sans',sans-serif;
-  }
-  .tab.active{
-    color:var(--text);
-    border-bottom-color:var(--gold);
-  }
-  .plans{
-    display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(140px,1fr));
-    gap:14px;
-    margin-bottom:28px;
-  }
-  .plan{
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:8px;
-    padding:20px 16px;
-  }
-  .plan .duree{
-    color:var(--muted);
-    font-size:13px;
-    font-weight:500;
-  }
-  .plan .prix{
-    font-family:'Archivo',sans-serif;
-    font-weight:800;
-    font-size:26px;
-    margin-top:6px;
-    color:var(--text);
-  }
+  .tabs{display:flex;gap:8px;border-bottom:1px solid var(--line);margin-bottom:26px;flex-wrap:wrap;}
+  .tab{padding:10px 18px;font-size:14px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer;background:none;border-top:none;border-left:none;border-right:none;font-family:'IBM Plex Sans',sans-serif;}
+  .tab.active{color:var(--text);border-bottom-color:var(--gold);}
+  .plans{display:grid;grid-template-columns:repeat(auto-fit, minmax(150px,1fr));gap:14px;margin-bottom:22px;}
+  .plan{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:20px 16px;display:flex;flex-direction:column;gap:12px;}
+  .plan .duree{color:var(--muted);font-size:13px;font-weight:500;}
+  .plan .prix{font-family:'Archivo',sans-serif;font-weight:800;font-size:26px;color:var(--text);}
   .plan.best{border-color:var(--gold);}
   .plan.best .duree{color:var(--gold);}
-  .whatsapp-cta{
-    display:inline-flex;
-    align-items:center;
-    gap:10px;
-    background:var(--panel2);
-    border:1px solid var(--line);
-    padding:13px 20px;
-    border-radius:6px;
-    font-size:14px;
-    font-weight:600;
-  }
-  .whatsapp-cta .dot{background:#35D0C0;}
+  .plan-btn{background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:9px;border-radius:6px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;}
+  .plan.best .plan-btn{background:var(--gold);color:#1A1305;border-color:var(--gold);}
 
-  .features{
-    padding:52px 0;
-    border-top:1px solid var(--line);
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-    gap:24px;
-  }
-  .feature .num{
-    font-family:'Archivo',sans-serif;
-    font-weight:800;
-    font-size:24px;
-    color:var(--gold);
-  }
-  .feature .label{
-    color:var(--muted);
-    font-size:13px;
-    margin-top:4px;
-  }
+  .whatsapp-cta{display:inline-flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--line);padding:12px 18px;border-radius:6px;font-size:13.5px;font-weight:500;color:var(--muted);margin-bottom:26px;}
+  .whatsapp-cta .dot{background:var(--cyan);}
+
+  .features{padding:52px 0;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:24px;}
+  .feature .num{font-family:'Archivo',sans-serif;font-weight:800;font-size:24px;color:var(--gold);}
+  .feature .label{color:var(--muted);font-size:13px;margin-top:4px;}
 
   .steps{padding:20px 0 56px;border-top:1px solid var(--line);}
   .steps h2{font-size:22px;margin-bottom:24px;}
-  .step-list{display:flex;flex-direction:column;gap:0;}
-  .step{
-    display:flex;
-    gap:18px;
-    padding:18px 0;
-    border-bottom:1px solid var(--line);
-  }
+  .step{display:flex;gap:18px;padding:18px 0;border-bottom:1px solid var(--line);}
   .step:last-child{border-bottom:none;}
-  .step-n{
-    font-family:'Archivo',sans-serif;
-    font-weight:800;
-    color:var(--muted);
-    font-size:15px;
-    flex-shrink:0;
-    width:24px;
-  }
+  .step-n{font-family:'Archivo',sans-serif;font-weight:800;color:var(--muted);font-size:15px;flex-shrink:0;width:24px;}
   .step-txt h3{font-size:15px;font-weight:600;font-family:'IBM Plex Sans';margin-bottom:3px;}
   .step-txt p{color:var(--muted);font-size:13.5px;}
 
-  footer{
-    border-top:1px solid var(--line);
-    padding:28px 0;
-    color:var(--muted);
-    font-size:13px;
-    display:flex;
-    justify-content:space-between;
-    flex-wrap:wrap;
-    gap:10px;
+  footer{border-top:1px solid var(--line);padding:28px 0;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+
+  .overlay{
+    position:fixed;inset:0;background:rgba(5,7,12,.75);
+    display:none;align-items:center;justify-content:center;
+    padding:20px;z-index:50;
   }
+  .overlay.open{display:flex;}
+  .modal{
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:26px;max-width:380px;width:100%;
+  }
+  .modal h3{font-size:18px;margin-bottom:4px;}
+  .modal .recap{color:var(--gold);font-size:14px;font-weight:600;margin-bottom:18px;}
+  .modal label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:5px;margin-top:14px;}
+  .modal input{
+    width:100%;background:var(--bg);border:1px solid var(--line);color:var(--text);
+    padding:11px 12px;border-radius:6px;font-size:14px;font-family:'IBM Plex Sans',sans-serif;
+  }
+  .modal-actions{display:flex;gap:10px;margin-top:22px;}
+  .modal-actions button{flex:1;padding:12px;border-radius:6px;font-weight:600;font-size:14px;cursor:pointer;border:1px solid var(--line);font-family:'IBM Plex Sans',sans-serif;}
+  .btn-cancel{background:none;color:var(--muted);}
+  .btn-pay{background:var(--gold);color:#1A1305;border-color:var(--gold);}
+  .modal-error{color:#E76B5C;font-size:13px;margin-top:10px;display:none;}
 
   @media(max-width:600px){
     .hero h1{font-size:29px;}
@@ -241,11 +118,7 @@
   </div>
 </div>
 
-<header>
-  <div class="wrap">
-    <div class="brand"><span class="dot"></span>PRIME IPTV STREAMING</div>
-  </div>
-</header>
+<header><div class="wrap"><div class="brand"><span class="dot"></span>PRIME IPTV STREAMING</div></div></header>
 
 <section class="hero">
   <div class="wrap">
@@ -258,13 +131,11 @@
 <section class="regions" id="tarifs">
   <div class="wrap">
     <h2>Choisissez votre formule</h2>
-    <p class="sub" id="region-hint">Région détectée automatiquement — vous pouvez la changer ci-dessous.</p>
+    <p class="sub">Région détectée automatiquement — vous pouvez la changer ci-dessous. Paiement sécurisé, activation automatique.</p>
 
     <div class="tabs" id="tabs"></div>
     <div class="plans" id="plans"></div>
-    <a href="#" class="whatsapp-cta" id="whatsapp-btn" target="_blank">
-      <span class="dot"></span> Commander sur WhatsApp
-    </a>
+    <a href="#" class="whatsapp-cta" id="whatsapp-btn" target="_blank"><span class="dot"></span> Une question ? Contactez-nous sur WhatsApp</a>
   </div>
 </section>
 
@@ -280,77 +151,66 @@
 <section class="steps">
   <div class="wrap">
     <h2>Comment ça marche</h2>
-    <div class="step-list">
-      <div class="step">
-        <div class="step-n">1</div>
-        <div class="step-txt">
-          <h3>Choisissez votre formule</h3>
-          <p>Sélectionnez la durée qui vous convient selon votre région.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-n">2</div>
-        <div class="step-txt">
-          <h3>Contactez-nous sur WhatsApp</h3>
-          <p>Confirmez votre commande et effectuez le paiement.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-n">3</div>
-        <div class="step-txt">
-          <h3>Recevez vos identifiants</h3>
-          <p>Vos accès sont envoyés rapidement, prêts à être utilisés sur votre appareil.</p>
-        </div>
-      </div>
+    <div class="step">
+      <div class="step-n">1</div>
+      <div class="step-txt"><h3>Choisissez votre formule et payez en ligne</h3><p>Paiement sécurisé par carte, Wave ou Orange Money.</p></div>
+    </div>
+    <div class="step">
+      <div class="step-n">2</div>
+      <div class="step-txt"><h3>Confirmation immédiate</h3><p>Votre commande est enregistrée automatiquement dès le paiement validé.</p></div>
+    </div>
+    <div class="step">
+      <div class="step-n">3</div>
+      <div class="step-txt"><h3>Recevez vos identifiants par email</h3><p>Vos accès sont envoyés directement dans votre boîte mail, prêts à être utilisés.</p></div>
     </div>
   </div>
 </section>
 
-<footer>
-  <div class="wrap" style="display:flex;justify-content:space-between;width:100%;flex-wrap:wrap;gap:10px;">
-    <span>&copy; 2026 Prime IPTV Streaming</span>
-    <span>Service disponible dans le monde entier</span>
+<footer><div class="wrap" style="display:flex;justify-content:space-between;width:100%;flex-wrap:wrap;gap:10px;">
+  <span>&copy; 2026 Prime IPTV Streaming</span>
+  <span>Service disponible dans le monde entier</span>
+</div></footer>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h3>Finaliser votre commande</h3>
+    <div class="recap" id="modal-recap"></div>
+
+    <label for="f_nom">Nom complet</label>
+    <input type="text" id="f_nom" placeholder="Votre nom">
+
+    <label for="f_tel">Téléphone</label>
+    <input type="tel" id="f_tel" placeholder="Votre numéro">
+
+    <label for="f_email">Email (pour recevoir vos identifiants)</label>
+    <input type="email" id="f_email" placeholder="vous@email.com">
+
+    <div class="modal-error" id="modal-error"></div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" id="btn-cancel">Annuler</button>
+      <button class="btn-pay" id="btn-pay">Payer maintenant</button>
+    </div>
   </div>
-</footer>
+</div>
 
 <script>
+  var sb = supabase.createClient(
+    "https://vnceunqygoiwglnwpgcr.supabase.co",
+    "sb_publishable_WMntOm7vkufhazqMzzy1Iw_Gip2NmPK"
+  );
+
   const DATA = {
-    senegal: {
-      label: "Sénégal",
-      devise: "FCFA",
-      whatsapp: "221770958325",
-      plans: [
-        {duree:"1 mois", prix:"4 000"},
-        {duree:"3 mois", prix:"10 000"},
-        {duree:"6 mois", prix:"16 000"},
-        {duree:"1 an", prix:"28 000", best:true}
-      ]
-    },
-    maroc: {
-      label: "Maroc",
-      devise: "DH",
-      whatsapp: "212711691415",
-      plans: [
-        {duree:"1 mois", prix:"80"},
-        {duree:"3 mois", prix:"150"},
-        {duree:"6 mois", prix:"200"},
-        {duree:"1 an", prix:"300", best:true}
-      ]
-    },
-    intl: {
-      label: "International",
-      devise: "$",
-      whatsapp: "221770958325",
-      plans: [
-        {duree:"1 mois", prix:"10"},
-        {duree:"3 mois", prix:"25"},
-        {duree:"6 mois", prix:"40"},
-        {duree:"1 an", prix:"65", best:true}
-      ]
-    }
+    senegal: { label:"Sénégal", devise:"FCFA", whatsapp:"221770958325",
+      plans:[{duree:"1 mois",prix:4000},{duree:"3 mois",prix:10000},{duree:"6 mois",prix:16000},{duree:"1 an",prix:28000,best:true}] },
+    maroc: { label:"Maroc", devise:"DH", whatsapp:"212711691415",
+      plans:[{duree:"1 mois",prix:80},{duree:"3 mois",prix:150},{duree:"6 mois",prix:200},{duree:"1 an",prix:300,best:true}] },
+    intl: { label:"International", devise:"$", whatsapp:"221770958325",
+      plans:[{duree:"1 mois",prix:10},{duree:"3 mois",prix:25},{duree:"6 mois",prix:40},{duree:"1 an",prix:65,best:true}] }
   };
 
   let currentRegion = "intl";
+  let planChoisi = null;
 
   function renderTabs(){
     const tabsEl = document.getElementById("tabs");
@@ -371,12 +231,108 @@
     region.plans.forEach(p=>{
       const div = document.createElement("div");
       div.className = "plan" + (p.best ? " best" : "");
-      div.innerHTML = `<div class="duree">${p.duree}</div><div class="prix">${p.prix} ${region.devise}</div>`;
+      div.innerHTML = `<div class="duree">${p.duree}</div><div class="prix">${p.prix.toLocaleString("fr-FR")} ${region.devise}</div><button class="plan-btn">S'abonner</button>`;
+      div.querySelector(".plan-btn").onclick = () => ouvrirModal(p);
       plansEl.appendChild(div);
     });
     const wa = document.getElementById("whatsapp-btn");
-    wa.href = "https://wa.me/" + region.whatsapp + "?text=" + encodeURIComponent("Bonjour, je suis intéressé par un abonnement Prime IPTV Streaming (" + region.label + ")");
+    wa.href = "https://wa.me/" + region.whatsapp + "?text=" + encodeURIComponent("Bonjour, j'ai une question sur Prime IPTV Streaming (" + region.label + ")");
   }
+
+  function ouvrirModal(plan){
+    planChoisi = plan;
+    const region = DATA[currentRegion];
+    document.getElementById("modal-recap").textContent = region.label + " — " + plan.duree + " — " + plan.prix.toLocaleString("fr-FR") + " " + region.devise;
+    document.getElementById("modal-error").style.display = "none";
+    document.getElementById("overlay").classList.add("open");
+  }
+  function fermerModal(){
+    document.getElementById("overlay").classList.remove("open");
+  }
+  document.getElementById("btn-cancel").onclick = fermerModal;
+
+  document.getElementById("btn-pay").onclick = function(){
+    const nom = document.getElementById("f_nom").value.trim();
+    const tel = document.getElementById("f_tel").value.trim();
+    const email = document.getElementById("f_email").value.trim();
+    const erreurEl = document.getElementById("modal-error");
+
+    if (!nom || !tel || !email) {
+      erreurEl.textContent = "Merci de remplir tous les champs.";
+      erreurEl.style.display = "block";
+      return;
+    }
+    if (email.indexOf("@") === -1) {
+      erreurEl.textContent = "Adresse email invalide.";
+      erreurEl.style.display = "block";
+      return;
+    }
+
+    const btn = document.getElementById("btn-pay");
+    btn.disabled = true;
+    btn.textContent = "Envoi en cours...";
+
+    const region = DATA[currentRegion];
+    const idCommande = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + "-" + Math.random().toString(36).slice(2));
+
+    const donnees = {
+      id: idCommande,
+      nom: nom,
+      telephone: tel,
+      email: email,
+      region: region.label,
+      duree: planChoisi.duree,
+      prix: planChoisi.prix,
+      devise: region.devise,
+      statut_paiement: "non_paye"
+    };
+
+    sb.from("abonnements_iptv").insert([donnees]).then(function(reponse){
+      if (reponse.error) {
+        erreurEl.textContent = "Erreur : la commande n'a pas pu etre enregistree. Reessayez.";
+        erreurEl.style.display = "block";
+        btn.disabled = false;
+        btn.textContent = "Payer maintenant";
+        return;
+      }
+
+      fetch("https://vnceunqygoiwglnwpgcr.supabase.co/functions/v1/paytech-init", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          table: "abonnements_iptv",
+          id: idCommande,
+          item_name: "Prime IPTV Streaming - " + planChoisi.duree,
+          item_price: planChoisi.prix,
+          telephone: tel,
+          nom: nom
+        })
+      }).then(r => r.json()).then(function(resultat){
+        if (resultat.success === 1 && resultat.redirect_url) {
+          localStorage.setItem("prime_dernier_ticket", JSON.stringify({
+            type: "abonnement_iptv",
+            id: idCommande,
+            duree: planChoisi.duree,
+            prix: planChoisi.prix,
+            devise: region.devise,
+            email: email,
+            paytech_token: resultat.token || null
+          }));
+          window.location.href = resultat.redirect_url;
+        } else {
+          erreurEl.textContent = "Erreur lors de la creation du paiement. Reessayez.";
+          erreurEl.style.display = "block";
+          btn.disabled = false;
+          btn.textContent = "Payer maintenant";
+        }
+      }).catch(function(){
+        erreurEl.textContent = "Erreur de connexion au service de paiement. Reessayez.";
+        erreurEl.style.display = "block";
+        btn.disabled = false;
+        btn.textContent = "Payer maintenant";
+      });
+    });
+  };
 
   function detectRegion(){
     fetch("https://ipapi.co/json/")
@@ -386,14 +342,9 @@
         if (country === "SN") currentRegion = "senegal";
         else if (country === "MA") currentRegion = "maroc";
         else currentRegion = "intl";
-        renderTabs();
-        renderPlans();
+        renderTabs(); renderPlans();
       })
-      .catch(() => {
-        currentRegion = "intl";
-        renderTabs();
-        renderPlans();
-      });
+      .catch(() => { currentRegion = "intl"; renderTabs(); renderPlans(); });
   }
 
   renderTabs();
