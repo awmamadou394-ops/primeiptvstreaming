@@ -289,7 +289,7 @@
 
     sb.from("abonnements_iptv").insert([donnees]).then(function(reponse){
       if (reponse.error) {
-        erreurEl.textContent = "Erreur : la commande n'a pas pu etre enregistree. Reessayez.";
+        erreurEl.textContent = "Erreur reelle : " + reponse.error.message + " (code: " + (reponse.error.code || "?") + ")";
         erreurEl.style.display = "block";
         btn.disabled = false;
         btn.textContent = "Payer maintenant";
