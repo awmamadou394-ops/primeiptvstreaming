@@ -305,13 +305,13 @@
           }));
           window.location.href = resultat.redirect_url;
         } else {
-          erreurEl.textContent = "Erreur lors de la creation du paiement. Reessayez.";
+          erreurEl.textContent = "Erreur paiement: " + JSON.stringify(resultat);
           erreurEl.style.display = "block";
           btn.disabled = false;
           btn.textContent = "Payer maintenant";
         }
-      }).catch(function(){
-        erreurEl.textContent = "Erreur de connexion au service de paiement. Reessayez.";
+      }).catch(function(err){
+        erreurEl.textContent = "Erreur de connexion au service de paiement: " + err.message;
         erreurEl.style.display = "block";
         btn.disabled = false;
         btn.textContent = "Payer maintenant";
@@ -320,7 +320,7 @@
   };
 
   function detectRegion(){
-    fetch("https://ipapi.co/json/")
+    fetch("https://ipwho.is/")
       .then(r => r.json())
       .then(data => {
         const country = data.country_code;
@@ -328,7 +328,7 @@
         else if (country === "MA") currentRegion = "maroc";
         else currentRegion = "intl";
         renderPlans();
-        document.getElementById("region-label").textContent += " (detecte: " + JSON.stringify(data.country_code || data.error || data.reason || "?") + ")";
+        document.getElementById("region-label").textContent += " (detecte: " + JSON.stringify(data.country_code || data.message || "?") + ")";
       })
       .catch(function(err){
         currentRegion = "intl";
