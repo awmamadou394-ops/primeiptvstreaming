@@ -61,6 +61,15 @@
   .feature .num{font-family:'Archivo',sans-serif;font-weight:800;font-size:24px;color:var(--gold);}
   .feature .label{color:var(--muted);font-size:13px;margin-top:4px;}
 
+  .compat{padding:20px 0 52px;border-top:1px solid var(--line);}
+  .compat h2{font-size:20px;margin-bottom:6px;}
+  .compat .sub{color:var(--muted);font-size:14px;margin-bottom:20px;}
+  .compat-list{display:flex;flex-wrap:wrap;gap:10px;}
+  .compat-item{
+    background:var(--panel);border:1px solid var(--line);border-radius:6px;
+    padding:10px 16px;font-size:13.5px;font-weight:600;color:var(--text);
+  }
+
   .steps{padding:20px 0 56px;border-top:1px solid var(--line);}
   .steps h2{font-size:22px;margin-bottom:24px;}
   .step{display:flex;gap:18px;padding:18px 0;border-bottom:1px solid var(--line);}
@@ -104,11 +113,11 @@
 
 <div class="ticker">
   <div class="ticker-inner">
-    <span><span class="dot"></span>EN DIRECT — +8000 chaînes</span>
+    <span><span class="dot"></span>EN DIRECT — +21 000 chaînes</span>
     <span>4K &amp; HD sur tous vos écrans</span>
     <span>Support disponible 24/7</span>
     <span>Mises à jour continues</span>
-    <span><span class="dot"></span>EN DIRECT — +8000 chaînes</span>
+    <span><span class="dot"></span>EN DIRECT — +21 000 chaînes</span>
     <span>4K &amp; HD sur tous vos écrans</span>
     <span>Support disponible 24/7</span>
     <span>Mises à jour continues</span>
@@ -137,10 +146,26 @@
 
 <section class="features">
   <div class="wrap" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:24px;">
-    <div class="feature"><div class="num">8000+</div><div class="label">Chaînes en direct</div></div>
-    <div class="feature"><div class="num">30 000+</div><div class="label">Films et séries à la demande</div></div>
+    <div class="feature"><div class="num">21 000+</div><div class="label">Chaînes en direct</div></div>
+    <div class="feature"><div class="num">85 000+</div><div class="label">Films à la demande</div></div>
+    <div class="feature"><div class="num">20 000+</div><div class="label">Séries</div></div>
     <div class="feature"><div class="num">4K/HD</div><div class="label">Qualité d'image</div></div>
-    <div class="feature"><div class="num">24/7</div><div class="label">Support client</div></div>
+  </div>
+</section>
+
+<section class="compat">
+  <div class="wrap">
+    <h2>Compatible avec vos applications préférées</h2>
+    <p class="sub">Utilisez Prime IPTV Streaming avec le lecteur de votre choix, sur tous vos appareils.</p>
+    <div class="compat-list">
+      <div class="compat-item">Maghann</div>
+      <div class="compat-item">Kema Player</div>
+      <div class="compat-item">IPTV Smarters</div>
+      <div class="compat-item">Smart IPTV</div>
+      <div class="compat-item">SmartOne IPTV</div>
+      <div class="compat-item">XCIPTV Player</div>
+      <div class="compat-item">Televizo</div>
+    </div>
   </div>
 </section>
 
@@ -328,12 +353,10 @@
         else if (country === "MA") currentRegion = "maroc";
         else currentRegion = "intl";
         renderPlans();
-        document.getElementById("region-label").textContent += " (detecte: " + JSON.stringify(data.country_code || data.message || "?") + ")";
       })
-      .catch(function(err){
+      .catch(function(){
         currentRegion = "intl";
         renderPlans();
-        document.getElementById("region-label").textContent += " (erreur detection: " + err.message + ")";
       });
   }
 
