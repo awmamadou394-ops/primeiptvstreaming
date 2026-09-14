@@ -151,7 +151,7 @@
         : '<span class="badge nonpaye">Non paye</span>';
       const badgeEnvoi = l.identifiants_envoyes ? '<span class="badge envoye">Identifiants envoyes</span>' : "";
 
-      const date = l.date_commande ? new Date(l.date_commande).toLocaleString("fr-FR") : "";
+      const date = l.created_at ? new Date(l.created_at).toLocaleString("fr-FR") : "";
 
       div.innerHTML = `
         <div class="ligne1">
