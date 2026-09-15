@@ -34,20 +34,24 @@
   .badge.paye{background:rgba(53,208,192,0.15);color:var(--cyan);}
   .badge.nonpaye{background:rgba(231,107,92,0.15);color:var(--red);}
   .badge.envoye{background:rgba(231,169,76,0.15);color:var(--gold);}
+  .badge.app{background:rgba(139,147,167,0.15);color:var(--muted);}
 
   .detail{margin-top:10px;font-size:13px;color:var(--muted);line-height:1.7;}
   .detail b{color:var(--text);}
 
   .envoi-form{margin-top:12px;border-top:1px solid var(--line);padding-top:12px;display:none;}
   .envoi-form.open{display:block;}
+  .envoi-form label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px;}
   .envoi-form input{
     width:100%;background:var(--bg);border:1px solid var(--line);color:var(--text);
-    padding:9px 10px;border-radius:6px;font-size:13.5px;margin-bottom:8px;font-family:'IBM Plex Sans',sans-serif;
+    padding:9px 10px;border-radius:6px;font-size:13.5px;margin-bottom:10px;font-family:'IBM Plex Sans',sans-serif;
   }
+  .envoi-form .note{font-size:12px;color:var(--muted);margin-bottom:10px;margin-top:-4px;}
   .envoi-form button{
     background:var(--gold);color:#1A1305;border:none;padding:10px;border-radius:6px;
     font-weight:600;font-size:13.5px;cursor:pointer;width:100%;font-family:'IBM Plex Sans',sans-serif;
   }
+  .envoi-form button:disabled{opacity:0.5;cursor:not-allowed;}
   .toggle-envoi{
     margin-top:10px;background:var(--panel2);border:1px solid var(--line);color:var(--text);
     padding:9px 12px;border-radius:6px;font-size:13px;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;
@@ -85,6 +89,16 @@
     sessionStorage.removeItem("prime_admin_user");
     sessionStorage.removeItem("prime_admin_pass");
     window.location.href = "admin-connexion.html";
+  };
+
+  const SERVEURS_PAR_APP = {
+    "Maghann": "",
+    "Televizo": "http://maghann.live",
+    "IPTV Smarters Pro": "http://tv.konfatta.xyz",
+    "Smart IPTV": "http://live.maghannplus.xyz",
+    "SmartOne IPTV": "http://live.maghannplus.xyz",
+    "XCIPTV Player": "http://live.maghannplus.xyz",
+    "Kema Player": "http://live.maghannplus.xyz"
   };
 
   let toutesLesLignes = [];
@@ -150,8 +164,11 @@
         ? '<span class="badge paye">Paye</span>'
         : '<span class="badge nonpaye">Non paye</span>';
       const badgeEnvoi = l.identifiants_envoyes ? '<span class="badge envoye">Identifiants envoyes</span>' : "";
+      const badgeApp = l.application ? '<span class="badge app">' + l.application + '</span>' : "";
 
       const date = l.created_at ? new Date(l.created_at).toLocaleString("fr-FR") : "";
+      const serveurSuggere = l.application && SERVEURS_PAR_APP.hasOwnProperty(l.application) ? SERVEURS_PAR_APP[l.application] : "";
+      const noteServeur = l.application === "Maghann" ? "<div class='note'>Maghann : serveur deja integre dans l'app, laisser vide.</div>" : "";
 
       div.innerHTML = `
         <div class="ligne1">
@@ -159,18 +176,24 @@
             <div class="nom">${l.client_nom || "?"}</div>
             <div class="meta">${date}</div>
           </div>
-          <div style="text-align:right;">${badgePaiement}<br>${badgeEnvoi}</div>
+          <div style="text-align:right;">${badgePaiement}<br>${badgeEnvoi}${badgeApp ? "<br>" + badgeApp : ""}</div>
         </div>
         <div class="detail">
           <b>${l.formule || "?"}</b> — ${l.prix || "?"} ${l.devise || ""} — ${l.region || ""}<br>
+          Application : <b>${l.application || "non precisee"}</b><br>
           Tel: ${l.client_telephone || "?"}<br>
           Email: ${l.client_email || "?"}
         </div>
         ${l.statut_paiement === "paye" && !l.identifiants_envoyes ? `
           <button class="toggle-envoi">Renseigner et envoyer les identifiants</button>
           <div class="envoi-form">
-            <input type="text" placeholder="Identifiant IPTV" class="champ-login">
-            <input type="text" placeholder="Mot de passe IPTV" class="champ-pass">
+            <label>Serveur/Hote (URL) :</label>
+            <input type="text" class="champ-serveur" value="${serveurSuggere}" placeholder="ex: http://serveur.exemple.com:8080">
+            ${noteServeur}
+            <label>Identifiant</label>
+            <input type="text" class="champ-login" placeholder="Identifiant IPTV">
+            <label>Mot de passe</label>
+            <input type="text" class="champ-pass" placeholder="Mot de passe IPTV">
             <button class="valider-envoi">Marquer comme envoye</button>
           </div>
         ` : ""}
@@ -181,21 +204,34 @@
         const form = div.querySelector(".envoi-form");
         toggleBtn.onclick = () => form.classList.toggle("open");
 
-        div.querySelector(".valider-envoi").onclick = function(){
+        const btnValider = div.querySelector(".valider-envoi");
+        btnValider.onclick = function(){
+          const serveur = div.querySelector(".champ-serveur").value.trim();
           const login = div.querySelector(".champ-login").value.trim();
           const mdp = div.querySelector(".champ-pass").value.trim();
-          if (!login || !mdp) { alert("Remplis les deux champs."); return; }
+          if (!login && !mdp && !serveur) { alert("Remplis au moins un champ."); return; }
+
+          btnValider.disabled = true;
+          btnValider.textContent = "Envoi en cours...";
 
           fetch("https://vnceunqygoiwglnwpgcr.supabase.co/functions/v1/admin-iptv", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               action: "marquer_envoye", username: user, password: pass,
-              id: l.id, identifiant_iptv: login, mot_de_passe_iptv: mdp
+              id: l.id, identifiant_iptv: login, mot_de_passe_iptv: mdp, serveur_url: serveur
             })
           }).then(r => r.json()).then(function(res){
             if (res.success) { chargerDonnees(); }
-            else { alert("Erreur: " + (res.message || "inconnue")); }
+            else {
+              alert("Erreur: " + (res.message || "inconnue"));
+              btnValider.disabled = false;
+              btnValider.textContent = "Marquer comme envoye";
+            }
+          }).catch(function(){
+            alert("Erreur de connexion.");
+            btnValider.disabled = false;
+            btnValider.textContent = "Marquer comme envoye";
           });
         };
       }
